@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, ArrowLeft, ArrowRight, RotateCw, Undo2, Redo2, Home, Search, Star, Menu as MenuIcon, History, Bookmark, Settings, Terminal, LayoutTemplate, Braces, Smartphone, Sparkles, EyeOff, Info , Columns , ChevronDown , ChevronUp , Download, PlayCircle, PictureInPicture2, Pause, Volume2, XCircle} from 'lucide-react';
+import { Plus, ArrowLeft, ArrowRight, RotateCw, Undo2, Redo2, Home, Search, Star, Menu as MenuIcon, History, Bookmark, Settings, Terminal, LayoutTemplate, Braces, Smartphone, Sparkles, EyeOff, Info , Columns , ChevronDown , ChevronUp , Download, PlayCircle, PictureInPicture2, Pause, Volume2, XCircle, ZoomIn, Maximize, Minus } from 'lucide-react';
 import { HistoryPage, BookmarksPage, NewTabPage, SettingsPage, AboutPage } from './components/InternalPages';
 import { DeveloperDashboardPage, ApiTesterPage, JsonViewerPage } from './components/DeveloperPages';
 import { CommandPalette } from './components/CommandPalette';
 import { AISidebar } from './components/AISidebar';
 import './styles/index.css';
+import novaIcon from '../../assets/icon.png';
 
 const SidebarItem = ({ icon, label, active, onClick, isCollapsed }: any) => (
   <div onClick={onClick} className={`sidebar-item ${active ? 'active' : ''}`} title={isCollapsed ? label : ''}>
@@ -31,6 +32,23 @@ export default function App() {
   const [isMediaOpen, setIsMediaOpen] = useState(false);
   const [isDownloadsOpen, setIsDownloadsOpen] = useState(false);
   const [downloads, setDownloads] = useState<any[]>([]);
+  const [zoomLevel, setZoomLevel] = useState(0);
+
+  useEffect(() => {
+    if (isMenuOpen && activeTabId && (window as any).electronAPI?.getZoom) {
+      (window as any).electronAPI.getZoom(activeTabId).then((lvl: number) => {
+        setZoomLevel(lvl);
+      });
+    }
+  }, [isMenuOpen, activeTabId]);
+
+  const handleZoom = (delta: number) => {
+    const newLevel = zoomLevel + delta;
+    setZoomLevel(newLevel);
+    if (activeTabId && (window as any).electronAPI?.setZoom) {
+      (window as any).electronAPI.setZoom(activeTabId, newLevel);
+    }
+  };
 
   // Close menus on click outside
   useEffect(() => {
@@ -303,7 +321,7 @@ export default function App() {
         <div className="sidebar-header" style={{ justifyContent: isSidebarCollapsed ? 'center' : 'space-between', paddingRight: isSidebarCollapsed ? '0' : '16px' }}>
           {!isSidebarCollapsed && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div className="logo-icon"></div>
+              <img src={novaIcon} className="logo-icon" alt="NOVA" />
               <span>NOVA</span>
             </div>
           )}
@@ -399,7 +417,7 @@ export default function App() {
 
         {!isSidebarCollapsed && (
           <div className="sidebar-footer">
-            <div className="logo-icon"></div>
+            <img src={novaIcon} className="logo-icon" alt="NOVA" />
             <div className="footer-text">
               <div className="title">NOVA Browser</div>
               <div className="subtitle">Browse the web, your way.</div>
@@ -520,8 +538,8 @@ export default function App() {
 
           {/* Media Button */}
           {tabs.some(t => (t as any).isAudible) && (
-            <div className="menu-container">
-              <button className="nav-icon active" style={{ color: '#ec4899' }} onClick={() => setIsMediaOpen(!isMediaOpen)} title="Media Controls">
+            <div className="menu-container" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
+              <button className="nav-icon active" style={{ color: '#ec4899' }} onClick={() => setIsMediaOpen(prev => !prev)} title="Media Controls">
                 <Volume2 size={16} />
               </button>
               {isMediaOpen && (
@@ -549,8 +567,8 @@ export default function App() {
           )}
 
           {/* Downloads Button */}
-          <div className="menu-container">
-            <button className="nav-icon active" onClick={() => setIsDownloadsOpen(!isDownloadsOpen)}>
+          <div className="menu-container" onMouseDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
+            <button className="nav-icon active" onClick={() => setIsDownloadsOpen(prev => !prev)}>
               <Download size={16} />
               {downloads.some((d: any) => d.state === 'progressing') && (
                 <div style={{ position: 'absolute', bottom: '4px', right: '4px', width: '6px', height: '6px', background: '#3b82f6', borderRadius: '50%' }}></div>

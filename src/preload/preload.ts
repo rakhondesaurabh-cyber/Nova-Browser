@@ -22,6 +22,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
   setVerticalTabs: (isVertical: boolean) => ipcRenderer.send('set-vertical-tabs', isVertical),
   setSplitTab: (id: number | null) => ipcRenderer.send('set-split-tab', id),
   
+  setZoom: (id: number, level: number) => ipcRenderer.send('set-zoom', id, level),
+  getZoom: (id: number) => ipcRenderer.invoke('get-zoom', id),
+  toggleFullScreen: () => ipcRenderer.send('toggle-fullscreen'),
+
   onTabUpdated: (callback: (state: any) => void) => {
     ipcRenderer.on('tab-updated', (_event, state) => callback(state));
   },

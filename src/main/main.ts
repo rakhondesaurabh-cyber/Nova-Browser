@@ -1,4 +1,5 @@
 import { app, BrowserWindow, WebContentsView, ipcMain, Menu, MenuItem, MenuItemConstructorOptions, protocol, session as electronSession } from 'electron';
+import { ElectronBlocker } from '@ghostery/adblocker-electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { initDatabase, db } from './services/database';
@@ -278,6 +279,16 @@ const createWindow = (isPrivate = false) => {
 
 app.on('ready', () => {
   initDatabase();
+  
+  ElectronBlocker.fromPrebuiltAdsAndTracking(fetch).then((blocker) => {
+    blocker.enableBlockingInSession(electronSession.defaultSession);
+    // Also enable for the private session which uses a different partition
+    const privateElectronSession = electronSession.fromPartition('persist:private');
+    blocker.enableBlockingInSession(privateElectronSession);
+  }).catch((err) => {
+    console.error('Failed to initialize ad blocker:', err);
+  });
+
   protocol.registerStringProtocol('nova', (request, callback) => {
     callback({
       mimeType: 'text/html',
@@ -663,6 +674,12 @@ function setupIPC() {
         switchTab(id);
       }},
       { type: 'separator' },
+      { label: 'Zoom In', role: 'zoomIn' },
+      { label: 'Zoom Out', role: 'zoomOut' },
+      { label: 'Reset Zoom', role: 'resetZoom' },
+      { type: 'separator' },
+      { label: 'Full Screen', role: 'togglefullscreen' },
+      { type: 'separator' },
       { label: 'Exit', role: 'quit' }
     ]);
     
@@ -837,6 +854,26 @@ function setupIPC() {
   ipcMain.on('reload', (event, id) => {
     if (getSession(id)?.tabs.has(id)) {
       getSession(id)?.tabs.get(id)?.webContents?.reload();
+    }
+  });
+
+  ipcMain.on('set-zoom', (event, id, level) => {
+    if (getSession(id)?.tabs.has(id)) {
+      getSession(id)?.tabs.get(id)?.webContents?.setZoomLevel(level);
+    }
+  });
+
+  ipcMain.handle('get-zoom', (event, id) => {
+    if (getSession(id)?.tabs.has(id)) {
+      return getSession(id)?.tabs.get(id)?.webContents?.getZoomLevel() || 0;
+    }
+    return 0;
+  });
+
+  ipcMain.on('toggle-fullscreen', (event) => {
+    const session = getSessionByEvent(event);
+    if (session && session.window) {
+      session.window.setFullScreen(!session.window.isFullScreen());
     }
   });
 

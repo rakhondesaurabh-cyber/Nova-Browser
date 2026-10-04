@@ -44,6 +44,7 @@
     "vite": "^5.4.21"
   },
   "dependencies": {
+    "@ghostery/adblocker-electron": "^2.18.2",
     "electron-squirrel-startup": "^1.0.1",
     "lucide-react": "^1.48.0",
     "react": "^19.3.0",

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Search, Plus, Video, Book, PenTool, LayoutTemplate, Globe, Code, FileText, MonitorPlay, MessagesSquare, Sparkles, History, Trash2, ExternalLink, Clock, Star, ChevronRight, SlidersHorizontal, MoreVertical, ChevronDown, Folder, Bookmark, FolderPlus, Settings, X, Sun, Moon } from 'lucide-react';
+import novaIcon from '../../../assets/icon.png';
 
 export const SettingsPage = () => {
   const [settings, setSettings] = useState<any>({ 
@@ -1024,9 +1025,16 @@ export const AboutPage = () => {
         <h1>About NOVA</h1>
       </div>
       <div className="settings-content" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', textAlign: 'center', gap: '20px' }}>
-        <div style={{ width: '80px', height: '80px', background: 'linear-gradient(135deg, #c084fc, #6366f1)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: '32px', fontWeight: 'bold', boxShadow: '0 10px 25px rgba(99, 102, 241, 0.4)' }}>
-          N
-        </div>
+        <img 
+          src={novaIcon} 
+          alt="NOVA Browser" 
+          style={{ 
+            width: '80px', 
+            height: '80px', 
+            objectFit: 'contain',
+            filter: 'drop-shadow(0 8px 16px rgba(0,0,0,0.2))'
+          }} 
+        />
         <div>
           <h2 style={{ fontSize: '24px', margin: '0 0 8px 0', color: 'var(--text-main)' }}>NOVA Browser</h2>
           <p style={{ color: 'var(--text-dim)', margin: 0 }}>Version 1.0.0 (Developer Build)</p>
