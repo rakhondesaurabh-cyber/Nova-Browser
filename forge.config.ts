@@ -14,7 +14,13 @@ const config: ForgeConfig = {
   },
   rebuildConfig: {},
   makers: [
-    new MakerSquirrel({}),
+    new MakerSquirrel({
+      name: 'nova_browser',
+      authors: 'Saurabh',
+      description: 'NOVA Browser',
+      setupIcon: './assets/icon.ico',
+      iconUrl: 'https://raw.githubusercontent.com/rakhondesaurabh-cyber/Nova-Browser/main/assets/icon.ico'
+    }),
     new MakerZIP({}, ['darwin']),
     new MakerRpm({}),
     new MakerDeb({}),

@@ -1,5 +1,4 @@
 import { app, BrowserWindow, WebContentsView, ipcMain, Menu, MenuItem, MenuItemConstructorOptions, protocol, session as electronSession } from 'electron';
-import { ElectronBlocker } from '@ghostery/adblocker-electron';
 import path from 'node:path';
 import started from 'electron-squirrel-startup';
 import { initDatabase, db } from './services/database';
@@ -269,25 +268,12 @@ const createWindow = (isPrivate = false) => {
     session.tabStates.clear();
     session.window = null;
   });
-
-  if (!isPrivate) {
-    session.window.webContents.openDevTools({ mode: 'detach' });
-  }
 };
 
 // import moved to top
 
 app.on('ready', () => {
   initDatabase();
-  
-  ElectronBlocker.fromPrebuiltAdsAndTracking(fetch).then((blocker) => {
-    blocker.enableBlockingInSession(electronSession.defaultSession);
-    // Also enable for the private session which uses a different partition
-    const privateElectronSession = electronSession.fromPartition('persist:private');
-    blocker.enableBlockingInSession(privateElectronSession);
-  }).catch((err) => {
-    console.error('Failed to initialize ad blocker:', err);
-  });
 
   protocol.registerStringProtocol('nova', (request, callback) => {
     callback({
